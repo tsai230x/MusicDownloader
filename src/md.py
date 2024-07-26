@@ -1,13 +1,16 @@
 import tkinter as tk
+from tkinter import filedialog
 import ssl
 import os
 from pytube import YouTube
 
-
 ssl._create_default_https_context = ssl._create_stdlib_context
 
-def Run():
-    os.chdir(dir.get())
+def Download():
+    if(dir.get()==''):
+        os.chdir('E:\Music')
+    else:
+        os.chdir(dir.get())
 
     yt = YouTube(url.get())
 
@@ -20,22 +23,29 @@ def Run():
 
     print('ok!')
 
-winmd=tk.Tk()
-winmd.title('EZ Music Downloader')
+def OpenFile():
+    dirSel=filedialog.askdirectory()
+    dir.set(dirSel)
 
-url=tk.StringVar()
-label1=tk.Label(text='YouTube連結:')
-entry1=tk.Entry(textvariable=url)
-label1.pack()
-entry1.pack()
+MainWin=tk.Tk()
+MainWin.title('EZ Music Downloader')
+MainWin.geometry('360x150')
 
 dir=tk.StringVar()
-label2=tk.Label(text='儲存位置:')
-entry2=tk.Entry(textvariable=dir)
-label2.pack()
-entry2.pack()
+dirLabel=tk.Label(text='儲存位置:')
+dirEntry=tk.Entry(textvariable=dir)
+dirBtn=tk.Button(text='選擇路徑',command=OpenFile)
+dirLabel.pack()
+dirEntry.pack()
+dirBtn.pack()
 
-button1=tk.Button(text='下載',command=Run)
-button1.pack()
+url=tk.StringVar()
+urlLabel=tk.Label(text='YouTube連結:')
+urlEntry=tk.Entry(textvariable=url)
+urlLabel.pack()
+urlEntry.pack()
 
-winmd.mainloop()
+DownloadBtn=tk.Button(text='下載',command=Download)
+DownloadBtn.pack()
+
+MainWin.mainloop()
