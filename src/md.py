@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import filedialog
 import ssl
 import os
+from bs4 import BeautifulSoup
+import requests
+import lxml
 from pytube import YouTube
 
 ssl._create_default_https_context = ssl._create_stdlib_context
@@ -19,13 +22,22 @@ def Download():
     #    print(f"音質: {stream.abr}, 格式: {stream.mime_type}, 擴展名: {stream.subtype}")
 
     print('download...')
-    yt.streams.filter(only_audio=True,abr='128kbps').get_audio_only().download(filename=yt.author+' - '+yt.title+'.mp3')
+    yt.streams.filter(only_audio=True,abr='128kbps').get_audio_only().download(filename=yt.title+'.mp3')
 
     print('ok!')
 
 def OpenFile():
     dirSel=filedialog.askdirectory()
     dir.set(dirSel)
+
+def GetTitle():
+    html = requests.get(url.get())
+    html.encoding = 'UTF-8'
+    sp = BeautifulSoup(html.text,'lxml')
+    title = sp.find('meta',itemprop='name')['content']
+    print(title)
+    
+    #return sp.yt-formatted-string.text
 
 MainWin=tk.Tk()
 MainWin.title('EZ Music Downloader')
@@ -47,5 +59,8 @@ urlEntry.pack()
 
 DownloadBtn=tk.Button(text='下載',command=Download)
 DownloadBtn.pack()
+
+TestBtn=tk.Button(text='測試',command=GetTitle)
+TestBtn.pack()
 
 MainWin.mainloop()
