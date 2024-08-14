@@ -4,27 +4,20 @@ import ssl
 import os
 from bs4 import BeautifulSoup
 import requests
-import lxml
 from pytube import YouTube
 
 ssl._create_default_https_context = ssl._create_stdlib_context
 
 def Download():
-    if(dir.get()==''):
-        os.chdir('E:\Music')
-    else:
-        os.chdir(dir.get())
+    os.chdir(dir.get())
 
     yt = YouTube(url.get())
 
-    #print("可用的音頻流:")
-    #for stream in yt.streams.filter(only_audio=True,abr='128kbps'):
-    #    print(f"音質: {stream.abr}, 格式: {stream.mime_type}, 擴展名: {stream.subtype}")
+    title = GetTitle()
+    
+    yt.streams.filter(only_audio=True,abr='128kbps').get_audio_only().download(filename=f'{title}.mp3')
 
-    print('download...')
-    yt.streams.filter(only_audio=True,abr='128kbps').get_audio_only().download(filename=yt.title+'.mp3')
-
-    print('ok!')
+    status.config(text='OK!',fg='green')
 
 def OpenFile():
     dirSel=filedialog.askdirectory()
@@ -35,32 +28,54 @@ def GetTitle():
     html.encoding = 'UTF-8'
     sp = BeautifulSoup(html.text,'lxml')
     title = sp.find('meta',itemprop='name')['content']
-    print(title)
     
-    #return sp.yt-formatted-string.text
+    return title
+
+def DownloadCheck():
+    dirStatus=False
+    urlStatus=False
+    if(dir.get()!=''):
+        dirStatus=True
+    else:
+        dirStatus=False
+    if(url.get()!=''):
+        urlStatus=True
+    else:
+        urlStatus=False
+    if((urlStatus==False) and (dirStatus==False)):
+        status.config(text='Youtube連結、儲存位置不得為空',fg='red')
+    elif(urlStatus==False):
+        status.config(text='Youtube連結不得為空',fg='red')
+    elif(dirStatus==False):
+        status.config(text='儲存位置不得為空',fg='red')
+    else:
+        Download()
 
 MainWin=tk.Tk()
 MainWin.title('EZ Music Downloader')
-MainWin.geometry('360x150')
+MainWin.geometry('340x150')
+
+url=tk.StringVar()
+urlLabel=tk.Label(text='YouTube連結:')
+urlEntry=tk.Entry(textvariable=url)
+urlLabel.place(x=10,y=10)
+urlEntry.place(x=100,y=10)
 
 dir=tk.StringVar()
 dirLabel=tk.Label(text='儲存位置:')
 dirEntry=tk.Entry(textvariable=dir)
 dirBtn=tk.Button(text='選擇路徑',command=OpenFile)
-dirLabel.pack()
-dirEntry.pack()
-dirBtn.pack()
+dirLabel.place(x=10,y=60)
+dirEntry.place(x=100,y=60)
+dirBtn.place(x=250,y=60)
 
-url=tk.StringVar()
-urlLabel=tk.Label(text='YouTube連結:')
-urlEntry=tk.Entry(textvariable=url)
-urlLabel.pack()
-urlEntry.pack()
+DownloadBtn=tk.Button(text='下載',command=DownloadCheck)
+DownloadBtn.place(x=10,y=110)
 
-DownloadBtn=tk.Button(text='下載',command=Download)
-DownloadBtn.pack()
+status=tk.Label(text='',fg='black',font=20)
+status.place(x=75,y=110)
 
-TestBtn=tk.Button(text='測試',command=GetTitle)
-TestBtn.pack()
+#TestBtn=tk.Button(text='測試',command=Test)
+#TestBtn.pack()
 
 MainWin.mainloop()
